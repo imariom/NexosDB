@@ -2,32 +2,32 @@ package main
 
 import (
 	"fmt"
-	"kvstore-db/kvstore"
+
+	"github.com/imariom/NexusDB/kvstore"
 )
 
 func main() {
 	store := kvstore.NewKVStore()
 
-	store.Put([]byte("mario"), []byte("alfredo"))
-	store.Put([]byte("nercia"), []byte("chale"))
-	store.Put([]byte("elves"), []byte("junior"))
-	store.Put([]byte("maria"), []byte("moiane"))
+	store.Put([]byte("microsoft"), []byte("satya"))
+	store.Put([]byte("apple"), []byte("cook"))
+	store.Put([]byte("google"), []byte("pichai"))
 
-	value, err := store.Get([]byte("mario"))
+	value, err := store.Get([]byte("microsoft"))
 	if err != nil {
 		fmt.Println(err.Error())
 		return
 	}
 	fmt.Println("Value found: ", string(value))
 
-	value, err = store.Get([]byte("elves"))
+	value, err = store.Get([]byte("apple"))
 	if err != nil {
 		fmt.Println(err.Error())
 		return
 	}
 	fmt.Println("Value found: ", string(value))
 
-	value, err = store.Get([]byte("ana"))
+	value, err = store.Get([]byte("amazon"))
 	if err != nil {
 		fmt.Println(err.Error())
 		return
