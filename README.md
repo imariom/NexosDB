@@ -24,50 +24,21 @@ Use Cases:
 
 ##  Key Features
 
-Core Storage Layer
-
-Create a basic key-value store interface with Get, Put, Delete, and Exists methods.
-Store data in-memory, with possible options for disk persistence (e.g., using boltDB).
-
-Sharding and Partitioning
-Implement consistent hashing to distribute keys across different nodes.
-Set up a partitioning function that assigns data keys to specific nodes based on hash ranges.
-Replication
-Each partition should be replicated across multiple nodes for redundancy.
-Use a leader-follower model where each partition has a leader that handles writes and multiple followers for read replicas.
-Implement a replication protocol (e.g., primary-backup, or quorum-based).
-
-Fault Tolerance
-Handle node failures by redistributing data across surviving nodes.
-Implement heartbeats and failure detection.
-Add leader election using Raft or another consensus protocol to ensure a replica can take over in case of leader failure.
-
-Client Interface
-Design a client library to interact with the key-value store, with methods for Put, Get, Delete, and batch operations.
-Include a retry mechanism for fault tolerance and redirection to new leaders when a leader node fails.
-
-Networking
-Set up communication between nodes using gRPC or a lightweight HTTP server for efficient message-passing.
-Include protocols for replication, sharding, and heartbeats for fault detection.
-
-**Concurrency Patterns**
-  - Use Go’s goroutines and channels to handle concurrent requests and replication.
-  - Implement advanced concurrency mechanisms, such as worker pools, to handle high throughput.
-
-**KVStore - core storage layer**
-  - Hybrid storage support: In-Memory and Disk Persistence
-  - Use LSM tree to model data
-  - TTL Support
-  - Batching and Atomic Operations support
-  - Snapshotting for Faster Recovery
-  - Concurrency Control with Optimistic Locking
+**Core storage layer** (kvstore)
+  - Use LSM to structure and store data efficiently
+  - Basic interface with Get, Put, Update, Delete, and Exists methods
+  - Time-To-Live support on keys
+  - Concurrency control with optimistic Locking
+  - Snapshotting for faster recovery
+  - Batching and atomic Operations support
 
 **Sharding layer**
-
 **Replication layer**
   - Implement heartbeats
   - Failure detection
-  - Leader election using Raft
+  - Leader election consensus protocol using Raft
+**Client Interface**
+**Networking**
     
 ## Getting Started
 
