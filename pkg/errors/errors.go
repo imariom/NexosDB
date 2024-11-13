@@ -23,7 +23,7 @@ var (
 
 	// ErrKeyExpired is returned when trying to access a key that has
 	// expired.
-	ErrKeyExpired = errors.New("key not expired")
+	ErrKeyExpired = errors.New("key expired")
 
 	// ErrKeyRequired is returned when inserting a zero-length key.
 	ErrKeyRequired = errors.New("key required")

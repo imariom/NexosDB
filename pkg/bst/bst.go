@@ -8,7 +8,7 @@ import (
 
 // Node[T] represents a node in a generic BST.
 type node struct {
-	data  kv.KVPair
+	data  *kv.KVPair
 	left  *node
 	right *node
 }
@@ -20,22 +20,28 @@ type BST struct {
 }
 
 // Insertion
-func (bst *BST) Insert(data kv.KVPair) {
+func (bst *BST) Insert(pair kv.KVPair) {
 	bst.mu.Lock()
 	defer bst.mu.Unlock()
 
 	if bst.root == nil {
 		bst.root = &node{
-			data: kv.KVPair{Key: data.Key, Value: data.Value},
+			data: pair.Clone(),
 		}
 	} else {
-		inserNode(bst.root, data)
+		inserNode(bst.root, pair)
 	}
 }
 
 func inserNode(node_ *node, data kv.KVPair) {
-	if data.Key < node_.data.Key {
-		node_.left = &node{data: data}
+	// When Key alredy exists update it's value
+	// When key/value pair expired removed the KVPair
+	if data.GetHashedKey() < node_.data.GetHashedKey() {
+		if !node_.data.Expired() {
+			node_.left = &node{
+				data: data.Clone(),
+			}
+		}
 	}
 }
 

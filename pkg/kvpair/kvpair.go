@@ -20,18 +20,36 @@ type KVPair struct {
 }
 
 // NewKVPair constructs a KVPair object that represent a key/value pair somewhere.
-func NewKVPair(key, value []byte, duration time.Duration) *KVPair {
+func NewKVPair(key, value []byte, duration time.Duration) KVPair {
 	var expire time.Time
 	if duration > 0 {
 		expire = time.Now().Add(duration)
 	}
 
-	return &KVPair{
+	return KVPair{
 		key:        key,
 		value:      value,
 		expiration: expire,
 		updatedAt:  time.Now(),
 	}
+}
+
+func (kv *KVPair) Clone() *KVPair {
+	tmp := &KVPair{}
+
+	tmp.key = kv.key
+	kv.key = nil
+
+	tmp.value = kv.value
+	kv.value = nil
+
+	tmp.expiration = kv.expiration
+	kv.expiration = time.Time{}
+
+	tmp.updatedAt = kv.expiration
+	kv.expiration = time.Time{}
+
+	return tmp
 }
 
 // GetKey returns the original non-hashed key of the pair.
@@ -163,5 +181,5 @@ func getHashedKey(key []byte) string {
 //	expired := keyExpired(expTime)
 //	fmt.Println(expired)  // Outputs: true
 func keyExpired(expiration time.Time) bool {
-	return expiration.Before(time.Now())
+	return !expiration.IsZero() && expiration.Before(time.Now())
 }
