@@ -4,6 +4,12 @@ package errors
 
 import "errors"
 
+var (
+	// ErrKeyNotValid is returned when trying to access/operate on a key/value pair
+	// that was moved.
+	ErrKeyNotValid = errors.New("key/value pair not in valid state")
+)
+
 // These errors can be returned when opening or calling methods on a DB.
 var (
 	// ErrDatabaseNotOpen is returned when a DB instance is accessed before it
@@ -33,4 +39,8 @@ var (
 
 	// ErrValueTooLarge is returned when inserting a value that is larger than MaxValueSize.
 	ErrValueTooLarge = errors.New("value too large")
+
+	// ErrNodeIsNil is returned when trying to access/operate on a node
+	// tha is nil.
+	ErrNodeIsNil = errors.New("tree node is nil")
 )
