@@ -76,6 +76,18 @@ func (kv *KVPair) UpdateTTL(ttl time.Duration) error {
 	return nil
 }
 
+// Update does UpdateValue and UpdateTTL in one go.
+func (kv *KVPair) UpdateWith(other *KVPair) error {
+	if err := kv.Validate(); err != nil {
+		return err
+	}
+
+	kv.value = append(kv.value, other.value...)
+	kv.expiration = other.expiration
+	kv.updatedAt = time.Now()
+	return nil
+}
+
 // Key returns a copy of the key to prevent external modification.
 func (kv *KVPair) Key() ([]byte, error) {
 	if err := kv.Validate(); err != nil {
@@ -86,9 +98,11 @@ func (kv *KVPair) Key() ([]byte, error) {
 }
 
 // HashedKey transform keys into a fixed-length SHA-256 hash.
-func (kv *KVPair) HashedKey() (string, error) {
-	if err := kv.Validate(); err != nil {
-		return "", err
+func (kv *KVPair) HashedKey(options ...any) (string, error) {
+	if len(options) > 0 && options[0].(bool) {
+		if err := kv.Validate(); err != nil {
+			return "", err
+		}
 	}
 
 	return getHashedKey(kv.key), nil

@@ -32,32 +32,20 @@ type BST struct {
 
 // Insert inserts a new key/value pair in the tree or updates it if it exists
 // and is not expired.
-//
-// Parameters:
-//   - pair (KVPair): The key/value pair to be inserted/updated in the tree.
-//     After sucessfull execution of the Insert method the argument should not be used further.
-func (bst *BST) Insert(pair kv.KVPair) error {
-	var err error
-
+func (bst *BST) Insert(pair *kv.KVPair) error {
 	bst.mu.Lock()
 	defer bst.mu.Unlock()
 
-	if bst.root == nil {
+	p, err := pair.Clone()
+	if err != nil {
+		return err
+	} else if bst.root == nil {
 		bst.root = &node{
-			data: pair.Copy(),
+			data: p,
 		}
-	} else {
-		err = inserNode(bst.root, pair)
+		return nil
 	}
-
-	return err
-}
-
-// Search searches for a non expired key/value pair in the BST tree.
-func (bst *BST) Search(key []byte) bool {
-	bst.mu.RLock()
-	defer bst.mu.RUnlock()
-	return searchNode(bst.root, key)
+	return inserNode(bst.root, p)
 }
 
 // Get return a deep copy
@@ -69,104 +57,121 @@ func (bst *BST) Get(key []byte) (*kv.KVPair, error) {
 
 // InOrder traverses the tree in-order (left, root, right).
 func (bst *BST) InOrder() []*kv.KVPair {
-	bst.mu.RLock()
-	defer bst.mu.RUnlock()
+	// bst.mu.RLock()
+	// defer bst.mu.RUnlock()
 
-	var result []*kv.KVPair
-	inOrderTraversal(bst.root, &result)
+	// var result []*kv.KVPair
+	// inOrderTraversal(bst.root, &result)
 
-	return result
+	// return result
+	return nil
 }
 
-// Deletion
-// TODO: if key/value pair exists in the tree and expired remove it from the tree
-func (bst *BST) Delete(key []byte) {
-	bst.mu.Lock()
-	defer bst.mu.Unlock()
-	bst.root = deleteNode(bst.root, key)
+// Search searches for a non expired key/value pair in the BST tree.
+func (bst *BST) Search(key []byte) bool {
+	bst.mu.RLock()
+	defer bst.mu.RUnlock()
+	return searchNode(bst.root, key)
+}
+
+// Delete removes a key value pair from the tree if it exists.
+func (bst *BST) Delete(key []byte) error {
+	// bst.mu.Lock()
+	// defer bst.mu.Unlock()
+	// bst.root = deleteNode(bst.root, key)
+	return nil
 }
 
 // inserNode inserts or updates a key/value pair in the tree.
 // If the key/value pair exists and is expired it will return an error
-func inserNode(n *node, p kv.KVPair) error {
-	if p.Expired() {
-		return errors.ErrKeyExpired
-	}
-
-	pKey := p.GetHashedKey()
-	nKey := n.data.GetHashedKey()
-	var err error
+func inserNode(n *node, p *kv.KVPair) error {
+	pKey, _ := p.HashedKey()
+	nKey, _ := n.data.HashedKey()
 
 	if pKey < nKey {
 		// insert a new node in the left of the current node
 		if n.left == nil {
 			n.left = &node{
-				data: p.Copy(),
+				data: p,
 			}
-		} else {
-			err = inserNode(n.left, p)
+			return nil
 		}
+		return inserNode(n.left, p)
 	} else if pKey > nKey {
 		// insert a new node in the right of the current node
 		if n.right == nil {
 			n.right = &node{
-				data: p.Copy(),
+				data: p,
 			}
-		} else {
-			err = inserNode(n.right, p)
+			return nil
 		}
-	} else {
-		// ensure to update the current node if it already exists
-		err = updateNode(n, p)
+		return inserNode(n.right, p)
 	}
-
-	return err
+	// ensure to update the current node if it already exists
+	return updateNode(n, p)
 }
 
 // updateNode updates the node with the key/value pair passed.
-//
-// Paramters:
-//   - n (*node): The current node in the BST tree.
-//   - p (KVPair): The key/value pair to update the node.
-func updateNode(n *node, p kv.KVPair) error {
+func updateNode(n *node, p *kv.KVPair) error {
 	if n == nil {
 		return errors.ErrNodeIsNil
 	}
 
-	if p.Expired() {
-		return errors.ErrKeyExpired
-	}
-
-	pkey := p.GetHashedKey()
-	nKey := n.data.GetHashedKey()
-	var err error
+	pkey, _ := p.HashedKey()
+	nKey, _ := n.data.HashedKey()
 
 	if pkey == nKey {
-		n.data = p.Copy()
+		return n.data.UpdateWith(p)
 	} else if pkey < nKey {
-		err = updateNode(n.left, p)
+		return updateNode(n.left, p)
 	} else {
-		err = updateNode(n.right, p)
+		return updateNode(n.right, p)
+	}
+}
+
+// getNode returns the KVPair from the tree identified by the key k.
+func getNode(n *node, k []byte) (*kv.KVPair, error) {
+	if n == nil {
+		return nil, errors.ErrKeyNotFound
 	}
 
-	return err
+	key := kv.HashKey(k)
+	nKey, _ := n.data.HashedKey()
+
+	if key == nKey {
+		pair, err := n.data.Clone()
+		if err != nil {
+			return nil, err
+		}
+		return pair, nil
+	} else if key < nKey {
+		return getNode(n.left, k)
+	}
+	return getNode(n.right, k)
+}
+
+// inOrderTraversal traverses the tree in-order (left, n, right).
+func inOrderTraversal(n *node, r *[]*kv.KVPair) {
+	// if n != nil {
+	// 	inOrderTraversal(n.left, r)
+	// 	if !n.data.Expired() {
+	// 		*r = append(*r, n.data.Copy())
+	// 	}
+	// 	inOrderTraversal(n.right, r)
+	// }
 }
 
 // searchNode traverses the BST tree trying to find given k.
-//
-// Parameters:
-//   - n (*node): The current node in the BST tree.
-//   - k ([]byte): The key to search in the BST tree.
 func searchNode(n *node, k []byte) bool {
 	if n == nil {
 		return false
 	}
 
 	key := kv.HashKey(k)
-	nKey := n.data.GetHashedKey()
+	nKey, _ := n.data.HashedKey()
 
 	if key == nKey {
-		return !n.data.Expired()
+		return true
 	} else if key < nKey {
 		return searchNode(n.left, k)
 	} else {
@@ -174,71 +179,42 @@ func searchNode(n *node, k []byte) bool {
 	}
 }
 
-func getNode(n *node, k []byte) (*kv.KVPair, error) {
-	if n == nil {
-		return nil, errors.ErrNodeIsNil
-	}
-
-	key := kv.HashKey(k)
-	nKey := n.data.GetHashedKey()
-
-	if key == nKey {
-		if n.data.Expired() {
-			return nil, errors.ErrKeyExpired
-		} else {
-			return n.data.Clone(), nil
-		}
-	} else if key < nKey {
-		return getNode(n.left, k)
-	} else {
-		return getNode(n.right, k)
-	}
-}
-
-// inOrderTraversal traverses the tree in-order (left, n, right).
-func inOrderTraversal(n *node, r *[]*kv.KVPair) {
-	if n != nil {
-		inOrderTraversal(n.left, r)
-		if !n.data.Expired() {
-			*r = append(*r, n.data.Copy())
-		}
-		inOrderTraversal(n.right, r)
-	}
-}
-
 func deleteNode(n *node, k []byte) *node {
-	if n == nil {
-		return nil
-	}
+	// if n == nil {
+	// 	return nil
+	// }
 
-	pKey := kv.HashKey(k)
-	nKey := n.data.GetHashedKey()
+	// pkey := kv.hashkey(k)
+	// nkey := n.data.gethashedkey()
 
-	if pKey < nKey {
-		n.left = deleteNode(n.left, k)
-	} else if pKey > nKey {
-		n.right = deleteNode(n.right, k)
-	} else {
-		// node to be deleted is found
-		if n.left == nil {
-			return n.right
-		} else if n.right == nil {
-			return n.left
-		}
-		// node has two children
-		minRight := findMin(n.right)
-		n.data = minRight.data.Copy()
-		k, _ := minRight.data.GetKey()
-		n.right = deleteNode(n.right, k)
-	}
+	// if pkey < nkey {
+	// 	n.left = deletenode(n.left, k)
+	// } else if pkey > nkey {
+	// 	n.right = deletenode(n.right, k)
+	// } else {
+	// 	// node to be deleted is found
+	// 	if n.left == nil {
+	// 		return n.right
+	// 	} else if n.right == nil {
+	// 		return n.left
+	// 	}
+	// 	// node has two children
+	// 	minright := findmin(n.right)
+	// 	n.data = minright.data.copy()
+	// 	k, _ := minright.data.getkey()
+	// 	n.right = deletenode(n.right, k)
+	// }
 
-	return n
+	// return n
+	return nil
 }
 
 func findMin(n *node) *node {
-	current := n
-	for current.left != nil {
-		current = current.left
-	}
-	return current
+	// current := n
+	// for current.left != nil {
+	// 	current = current.left
+	// }
+	// return current
+
+	return nil
 }

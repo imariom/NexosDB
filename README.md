@@ -54,7 +54,6 @@ This will retrieve the library.
 
 NexusDB provides a CLI tool which can perform certain operations like offline backup/restore.  To install the NexusDB CLI,
 retrieve the repository and checkout the desired version.  Then run
-
 ```sh
 $ cd nexusc
 $ go install .
@@ -62,8 +61,8 @@ $ go install .
 This will install the NexusDB command line utility into your $GOBIN path.
 
 ## Tech Stack
-**Languages**: Python, JavaScript, etc.
-**Frameworks**: Django, React, Flask, etc.
+**Languages**: Go, JavaScript
+**Frameworks**: Gorrila
 **Libraries/Tools**: BeautifulSoup, TensorFlow, Docker, etc.
 
 ## Project Roadmap
