@@ -4,7 +4,7 @@ import (
 	"testing"
 	"time"
 
-	kv "github.com/imariom/nexusdb/pkg/kvpair"
+	kv "github.com/imariom/nexosdb/pkg/kvpair"
 )
 
 func TestBST_InsertAndSearch(t *testing.T) {
@@ -124,6 +124,13 @@ func TestBST_InsertAndSearch(t *testing.T) {
 	}
 }
 
+func TestBST_BatchInsertAndSearch(t *testing.T) {
+	// TODO: implement a batch insertion of KVPairs
+}
+
+func TestBST_ConcurrentInsertAndSearch() {
+}
+
 func TestBST_UpdateAndSearch(t *testing.T) {
 	kvpairs := []struct {
 		key         []byte
@@ -217,6 +224,73 @@ func TestBST_UpdateAndSearch(t *testing.T) {
 }
 
 func TestBST_InOrderTraversal(t *testing.T) {
+	tests := []struct {
+		key   []byte
+		value []byte
+		ttl   time.Duration
+	}{
+		{[]byte("userID123"), []byte("John Doe"), time.Second * 1},
+		{[]byte("sessionToken"), []byte("abc123xyz"), time.Minute * 5},
+		{[]byte("permanentUserID"), []byte("user123456"), 0},
+		{[]byte("email"), []byte("jane.doe@example.com"), time.Hour * 1},
+		{[]byte("orderID456"), []byte("Order#789456"), time.Minute * 30},
+		{[]byte("configSetting"), []byte("default"), 0},
+		{[]byte("productID"), []byte("Widget-X100"), time.Hour * 2},
+		{[]byte("binaryData"), []byte{0x0A, 0x1B, 0x2C, 0x3D}, time.Second * 45},
+		{[]byte("cartID"), []byte("CART98765"), time.Minute * 15},
+		{[]byte("apiKey"), []byte("apikey-xyz-123"), 0},
+		{[]byte("authToken"), []byte("authToken456"), time.Minute * 20},
+		{[]byte("licenseKey"), []byte("license-789-abcd"), 0},
+		{[]byte("userPreference"), []byte("theme:dark"), time.Hour * 4},
+		{[]byte("orderStatus"), []byte("pending"), time.Hour * 6},
+		{[]byte("imageHeader"), []byte{0xFF, 0xD8, 0xFF, 0xE0}, time.Minute * 20},
+		{[]byte("promotionCode"), []byte("DISCOUNT20"), time.Minute * 45},
+		{[]byte("featureToggle"), []byte("enabled"), 0},
+		{[]byte("sessionID"), []byte("xyz12345session"), time.Minute * 10},
+		{[]byte("jsonString"), []byte("{\"name\":\"John\"}"), time.Hour * 1},
+		{[]byte("largeText"), []byte("Lorem ipsum dolor sit amet, consectetur adipiscing elit."), time.Hour * 2},
+		{[]byte("integerValue"), []byte("123456789"), 0},
+		{[]byte("hexData"), []byte("4A6F686E446F65"), time.Minute * 50},
+		{[]byte("orderDetails"), []byte("Order123|Qty:10|Price:$99.99"), time.Hour * 3},
+		{[]byte("floatValue"), []byte("123.456"), 0},
+		{[]byte("binaryBlob"), []byte{0x01, 0x02, 0x03, 0x04, 0x05}, time.Minute * 15},
+		{[]byte("encodedString"), []byte("U29tZSBlbmNvZGVkIHN0cmluZw=="), time.Hour * 5},
+		{[]byte("customFlag"), []byte("true"), 0},
+		{[]byte("sessionTimeout"), []byte("300"), time.Minute * 5},
+		{[]byte("username"), []byte("guest123"), time.Hour * 1},
+		{[]byte("errorMessage"), []byte("Invalid credentials"), time.Minute * 10},
+		{[]byte("phoneNumber"), []byte("+1234567890"), time.Hour * 2},
+		{[]byte("currencyCode"), []byte("USD"), time.Minute * 30},
+		{[]byte("apiRateLimit"), []byte("1000 requests/min"), 0},
+		{[]byte("country"), []byte("Mozambique"), time.Hour * 24},
+		{[]byte("fileHash"), []byte("1234abcd"), time.Minute * 15},
+		{[]byte("alertStatus"), []byte("inactive"), time.Hour * 4},
+		{[]byte("discountCode"), []byte("SUMMER2024"), time.Minute * 50},
+		{[]byte("featureName"), []byte("BetaFeature1"), 0},
+		{[]byte("xmlPayload"), []byte("<name>John</name>"), time.Hour * 1},
+		{[]byte("accountBalance"), []byte("1000.00"), time.Hour * 3},
+		{[]byte("geoLocation"), []byte("25.9692° S, 32.5732° E"), time.Hour * 6},
+		{[]byte("apiVersion"), []byte("v1.0.0"), time.Minute * 20},
+		{[]byte("jsonData"), []byte("{\"age\":25}"), time.Hour * 2},
+		{[]byte("objectID"), []byte("obj-0001"), time.Minute * 45},
+		{[]byte("productCategory"), []byte("Electronics"), time.Hour * 1},
+		{[]byte("booleanFlag"), []byte("true"), time.Minute * 35},
+		{[]byte("configID"), []byte("configA"), 0},
+		{[]byte("requestToken"), []byte("req-12345"), time.Minute * 40},
+		{[]byte("binaryPayload"), []byte{0x10, 0x20, 0x30, 0x40}, time.Hour * 5},
+		{[]byte("systemMode"), []byte("idle"), time.Minute * 30},
+		{[]byte("retryCount"), []byte("3"), 0},
+		{[]byte("hexString"), []byte("ABCDEF"), time.Minute * 25},
+		{[]byte("apiKeyPrefix"), []byte("KEY-"), time.Hour * 6},
+		{[]byte("dataChecksum"), []byte("A1B2C3"), time.Minute * 15},
+		{[]byte("tempValue"), []byte("25.5°C"), time.Minute * 10},
+	}
+
+	// Inser all previous pair into the bst
+	bst := &BST{}
+	for _, test := range tests {
+		bst.Insert(kv.NewKVPair(test.key, test.value, test.ttl))
+	}
 }
 
 func slicesEqual(a, b []byte) bool {
@@ -293,7 +367,7 @@ func TestBST_GetMethod(t *testing.T) {
 		{[]byte("checksum"), []byte{0xDE, 0xAD, 0xBE, 0xEF}, time.Hour * 1, []byte{0xDE, 0xAD, 0xBE, 0xEF}},
 	}
 
-	// Inser all previous pair into the bst
+	// Insert all previous pair into the bst
 	bst := &BST{}
 	for _, test := range kvpairs {
 		bst.Insert(kv.NewKVPair(test.key, test.value, test.ttl))

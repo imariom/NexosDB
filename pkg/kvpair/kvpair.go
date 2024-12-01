@@ -8,7 +8,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/imariom/nexusdb/pkg/errors"
+	"github.com/imariom/nexosdb/pkg/errors"
 )
 
 // KVPair represents a key-value pair with metadata, including expiration and update timestamps.

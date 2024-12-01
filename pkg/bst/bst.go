@@ -3,8 +3,8 @@ package bst
 import (
 	"sync"
 
-	errors "github.com/imariom/nexusdb/pkg/errors"
-	kv "github.com/imariom/nexusdb/pkg/kvpair"
+	errors "github.com/imariom/nexosdb/pkg/errors"
+	kv "github.com/imariom/nexosdb/pkg/kvpair"
 )
 
 // node represents a single node in the binary search tree that
@@ -57,14 +57,13 @@ func (bst *BST) Get(key []byte) (*kv.KVPair, error) {
 
 // InOrder traverses the tree in-order (left, root, right).
 func (bst *BST) InOrder() []*kv.KVPair {
-	// bst.mu.RLock()
-	// defer bst.mu.RUnlock()
+	bst.mu.RLock()
+	defer bst.mu.RUnlock()
 
-	// var result []*kv.KVPair
-	// inOrderTraversal(bst.root, &result)
+	var result []*kv.KVPair
+	inOrderTraversal(bst.root, &result)
 
-	// return result
-	return nil
+	return result
 }
 
 // Search searches for a non expired key/value pair in the BST tree.
@@ -152,13 +151,14 @@ func getNode(n *node, k []byte) (*kv.KVPair, error) {
 
 // inOrderTraversal traverses the tree in-order (left, n, right).
 func inOrderTraversal(n *node, r *[]*kv.KVPair) {
-	// if n != nil {
-	// 	inOrderTraversal(n.left, r)
-	// 	if !n.data.Expired() {
-	// 		*r = append(*r, n.data.Copy())
-	// 	}
-	// 	inOrderTraversal(n.right, r)
-	// }
+	if n != nil {
+		inOrderTraversal(n.left, r)
+		if !n.data.IsExpired() {
+			kv, _ := n.data.Clone()
+			*r = append(*r, kv)
+		}
+		inOrderTraversal(n.right, r)
+	}
 }
 
 // searchNode traverses the BST tree trying to find given k.

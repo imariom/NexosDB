@@ -4,7 +4,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/imariom/nexusdb/pkg/errors"
+	"github.com/imariom/nexosdb/pkg/errors"
 )
 
 // Test case for the NewKVPair function

@@ -1,77 +1,110 @@
-# NexusDB 🚀
+<img src="./assets/nexosdb-logo.png" width="250" alt="NexosDB Logo">
 
-A simple yet powerful distributed key-value store database with features like replication, sharding, and fault tolerance. This project explores distributed systems concepts, networking, and advanced concurrency patterns in Go.
+## [Website](https://nexosdb.org) | [Documentation](https://nexosdb.org/docs/latest/concepts/overview/) | [Community Chat](https://nexosdb.org/chat)
 
-Table of Contents
-About the Project
-Key Features
-Getting Started
-Usage Examples
-Tech Stack
-Project Roadmap
-Contributing
-License
-Contact
+NexosDB is an embeddable lightweight and powerful key-value store designed for applications requiring fast access, strong consistency guarantees, and efficient storage utilization. NexosDB leverages the power of LSM-trees for efficient data organization and retrieval.
 
-## About the Project
-**Motivation**: Explain why you built this project and any specific problem it solves.
+## Table of Contents:
+  - [Key Features](#key-features)
+  - [Getting Started](#getting-started)
+    - [Installing](#installing)
+    - [Importing NexosDB](#importing-nexosdb)
+    - [Opening a database](#opening-a-database)
+  - [Project Roadmap](#project-roadmap)
+  - [Contributing](#contributing)
+  - [License](#license)
+  - [Contact](#contact)
 
-**Overview**: Briefly outline what this project does, how it stands out, and any unique approaches or techniques used.
+## Key Features
+**Core Operations:**
+  - CRUD operations: Insert, Get, Update, Delete
+  - Key-Value data model: Immutable keys, arbitrary values, TTL support
 
-Use Cases:
-    - Example 1
-    - Example 2
+**Storage and Persistence:**
+  - In-memory memtable for fast writes
+  - Persistent storage with SSTables (sorted string tables)
+  - Write-Ahead Log (WAL) for durability
+  - Background compaction to merge SSTables and optimize storage
 
-##  Key Features
+**Performance and Scalability:**
+  - LSM-tree based storage for efficient reads and writes
+  - Index structures (Bloom filters, sparse indexes) for faster lookups
+  - Concurrency control for safe concurrent access
+  - Atomic operations for data integrity
 
-**Core storage layer** (kvstore)
-  - Use LSM to structure and store data efficiently
-  - Basic interface with Get, Put, Update, Delete, and Exists methods
-  - Time-To-Live support on keys
-  - Concurrency control with optimistic Locking
-  - Snapshotting for faster recovery
-  - Batching and atomic Operations support
+**Data Consistency:**
+  - Strong consistency guarantees (transactions)
+  - Error handling for missing keys, capacity limits, and other failures.
 
-**Sharding layer**
-**Replication layer**
-  - Implement heartbeats
-  - Failure detection
-  - Leader election consensus protocol using Raft
-**Client Interface**
-**Networking**
-    
 ## Getting Started
 
 ### Installing
-To start using NexusDB, install Go 1.23 or above. NexusDB needs go modules. From your project, run the following command
+To start using NexosDB, install Go 1.23 or above.
 
+NexosDB needs go modules. From your project, run the following command
 ```sh
-$ go get github.com/imariom/nexusdb
+$ go get github.com/imariom/nexosdb
 ```
 This will retrieve the library.
 
-#### Installing NexusDB Command Line Tool
+### Importing NexosDB
+To use NexosDB as an embedded key-value store, import as:
 
-NexusDB provides a CLI tool which can perform certain operations like offline backup/restore.  To install the NexusDB CLI,
-retrieve the repository and checkout the desired version.  Then run
-```sh
-$ cd nexusc
-$ go install .
+```Go
+import nexos "github.com/imariom/nexosdb"
+
+db, err := nexos.Open("my.db", 0600, nexos.options{})
+if err != nil {
+  return err
+}
+defer db.Close()
 ```
-This will install the NexusDB command line utility into your $GOBIN path.
 
-## Tech Stack
-**Languages**: Go, JavaScript
-**Frameworks**: Gorrila
-**Libraries/Tools**: BeautifulSoup, TensorFlow, Docker, etc.
+### Opening a database
+The top-level object in NexosDB is a DB. It is represented as a single file on your disk and represents a consistent snapshot of your data.
+
+To open your database, simply use the nexus.Open() function:
+
+```Go
+package main
+
+import (
+	"log"
+
+	nexos "github.com/imariom/nexos"
+)
+
+func main() {
+	// Open the my.db data file in your current directory.
+	// It will be created if it doesn't exist.
+	db, err := nexos.Open("my.db", 0600, nexos.options{})
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer db.Close()
+
+	...
+}
+```
 
 ## Project Roadmap
-A list of any upcoming features or improvements planned for the project.
 
- Initial setup
- Feature enhancements
- Documentation updates
- Future plans (if any)
+NexosDB is actively under development, with a focus on continuous improvement and expansion of functionalities. Here's a glimpse into the upcoming roadmap:
+
+- **Phase 1: Feature Enhancements (Next 3 Months)**
+  - Implement sharding and replication for horizontal scalability and fault tolerance.
+  - Introduce full-text search capabilities for efficient data retrieval based on text content.
+  - Explore in-memory caching options for further performance optimization.
+  
+- **Phase 2: Advanced Use Cases and Integrations (Next 6 Months)**
+  - Investigate support for Document and Vector oriented data with specialized storage and query features.
+  - Integrate with popular messaging systems for real-time data exchange.
+  - Allow for user-defined data types and schema flexibility.
+
+- **Phase 3: Community Building and Long-Term Vision (Ongoing)**
+  - Enhance documentation and developer guides for broader adoption.
+  - Foster an active community for collaboration and knowledge sharing.
+  - Explore potential database-as-a-service (DBaaS) deployment options.
 
 ## Contributing
 Contributions are welcome! If you'd like to collaborate, please:
@@ -87,6 +120,6 @@ Distributed under the MIT License. See `LICENSE` for more information.
 ## Contact
 Mário Moiane - [connect@imariom.com](mailto:connect@imariom.com)
 - Please visit my [website](https://imariom.com)
-- Please use [Github issues](https://github.com/imariom/NexusDB) for filing bugs.
+- Please use [Github issues](https://github.com/imariom/NexosDB) for filing bugs.
 - Please follow me on Twitter [@__mrokok](https://x.com/__mrokok).
 - LinkedIn Profile [Mário Moiane](https://www.linkedin.com/in/m%C3%A1rio-moiane-5aa424202)
