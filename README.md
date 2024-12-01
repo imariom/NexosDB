@@ -2,7 +2,7 @@
 
 ## [Website](https://nexosdb.org) | [Documentation](https://nexosdb.org/docs/latest/concepts/overview/) | [Community Chat](https://nexosdb.org/chat)
 
-NexosDB is an embeddable lightweight and powerful key-value store designed for applications requiring fast access, strong consistency guarantees, and efficient storage utilization. NexosDB leverages the power of LSM-trees for efficient data organization and retrieval.
+NexosDB is a persistent, embeddable, lightweight and powerful key-value store designed for applications requiring fast access, strong consistency guarantees, and efficient storage utilization. NexosDB leverages the power of LSM-trees for efficient data organization and retrieval.
 
 ## Table of Contents:
   - [Key Features](#key-features)
